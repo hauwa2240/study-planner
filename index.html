@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Study Planner</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .description {
+            text-align: center;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .add-button {
+            background-color: #333;
+            color: white;
+            width: 100%;
+        }
+
+        .task {
+            background-color: #f4f6f8;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .complete-button {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .delete-button {
+            background-color: #d9534f;
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stat {
+            background-color: #f4f6f8;
+            padding: 15px;
+            border-radius: 8px;
+            width: 30%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>My Study Planner</h1>
+
+        <p class="description">
+            Organize your assignments and keep track of your deadlines.
+        </p>
+
+
+        <!-- Assignment Form -->
+
+        <input
+            type="text"
+            id="taskName"
+            placeholder="Assignment name"
+        >
+
+        <input
+            type="text"
+            id="subject"
+            placeholder="Subject"
+        >
+
+        <label for="dueDate">Due Date</label>
+
+<input
+    type="date"
+    id="dueDate"
+>
+
+        <button class="add-button" onclick="addTask()">
+            Add Assignment
+        </button>
+
+
+        <!-- Statistics -->
+
+        <div class="stats">
+
+            <div class="stat">
+                <strong id="totalTasks">0</strong>
+                <p>Total</p>
+            </div>
+
+            <div class="stat">
+                <strong id="completedTasks">0</strong>
+                <p>Completed</p>
+            </div>
+
+            <div class="stat">
+                <strong id="pendingTasks">0</strong>
+                <p>Pending</p>
+            </div>
+
+        </div>
+
+
+        <h2>My Assignments</h2>
+
+        <div id="taskList"></div>
+
+    </div>
+
+
+    <script>
+
+        // This is where we keep all our assignments.
+        let tasks = [];
+
+
+        // This function adds a new assignment.
+        function addTask() {
+
+            // Get the information from the input boxes.
+            let taskName = document.getElementById("taskName").value;
+            let subject = document.getElementById("subject").value;
+            let dueDate = document.getElementById("dueDate").value;
+
+
+            // Make sure the user filled in all the boxes.
+            if (taskName == "" || subject == "" || dueDate == "") {
+
+                alert("Please fill in all the fields.");
+
+                return;
+            }
+
+
+            // Create an assignment.
+            let task = {
+
+                name: taskName,
+                subject: subject,
+                dueDate: dueDate,
+                completed: false
+
+            };
+
+
+            // Add the assignment to our list.
+            tasks.push(task);
+
+
+            // Show the assignments on the page.
+            displayTasks();
+
+
+            // Clear the input boxes.
+            document.getElementById("taskName").value = "";
+            document.getElementById("subject").value = "";
+            document.getElementById("dueDate").value = "";
+
+        }
+
+
+        // This function displays the assignments.
+        function displayTasks() {
+
+            let taskList = document.getElementById("taskList");
+
+
+            // Clear the old list before displaying it again.
+            taskList.innerHTML = "";
+
+
+            // Go through every assignment.
+            for (let i = 0; i < tasks.length; i++) {
+
+                let task = tasks[i];
+
+
+                // Create a new area for the assignment.
+                let taskDiv = document.createElement("div");
+
+                taskDiv.className = "task";
+
+
+                // Create the assignment information.
+                let taskText = document.createElement("p");
+
+                taskText.innerHTML =
+                    "<strong>" + task.name + "</strong><br>" +
+                    "Subject: " + task.subject + "<br>" +
+                    "Due date: " + task.dueDate;
+
+
+                // If the assignment is completed,
+                // give the text the completed style.
+                if (task.completed == true) {
+
+                    taskText.className = "completed";
+
+                }
+
+
+                // Add the assignment information to the task.
+                taskDiv.appendChild(taskText);
+
+
+                // Create the Complete button.
+                let completeButton = document.createElement("button");
+
+                completeButton.innerHTML = "Complete";
+
+                completeButton.className = "complete-button";
+
+
+                // Tell the button what to do when clicked.
+                completeButton.onclick = function() {
+
+                    completeTask(i);
+
+                };
+
+
+                // Create the Delete button.
+                let deleteButton = document.createElement("button");
+
+                deleteButton.innerHTML = "Delete";
+
+                deleteButton.className = "delete-button";
+
+
+                // Tell the button what to do when clicked.
+                deleteButton.onclick = function() {
+
+                    deleteTask(i);
+
+                };
+
+
+                // Add the buttons to the task.
+                taskDiv.appendChild(completeButton);
+                taskDiv.appendChild(deleteButton);
+
+
+                // Add the complete task to the page.
+                taskList.appendChild(taskDiv);
+
+            }
+
+
+            // Update the numbers at the top.
+            updateStats();
+
+        }
+
+
+        // This function marks an assignment as completed.
+        function completeTask(number) {
+
+            tasks[number].completed = true;
+
+            displayTasks();
+
+        }
+
+
+        // This function deletes an assignment.
+        function deleteTask(number) {
+
+            tasks.splice(number, 1);
+
+            displayTasks();
+
+        }
+
+
+        // This function updates Total, Completed and Pending.
+        function updateStats() {
+
+            let total = tasks.length;
+
+            let completed = 0;
+
+
+            // Count the completed assignments.
+            for (let i = 0; i < tasks.length; i++) {
+
+                if (tasks[i].completed == true) {
+
+                    completed++;
+
+                }
+
+            }
+
+
+            let pending = total - completed;
+
+
+            // Show the numbers on the page.
+            document.getElementById("totalTasks").innerHTML = total;
+
+            document.getElementById("completedTasks").innerHTML = completed;
+
+            document.getElementById("pendingTasks").innerHTML = pending;
+
+        }
+
+
+    </script>
+
+</body>
+</html>
